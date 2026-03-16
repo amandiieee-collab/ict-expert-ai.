@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Sign In | ICTEXPERT.ai</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --navy: #0A192F; --orange: #D97706; --bg: #F3F4F6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .login-card { background: white; padding: 35px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; border-top: 5px solid var(--orange); }
+        .logo { text-align: center; font-size: 26px; font-weight: bold; color: var(--navy); margin-bottom: 20px; }
+        .logo span { color: var(--orange); }
+
+        /* Tabs for Sign In / Log In / Teacher */
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 25px; border-bottom: 2px solid #E5E7EB; }
+        .tab { padding: 10px; cursor: pointer; font-size: 14px; font-weight: bold; color: #6B7280; transition: 0.3s; }
+        .tab.active { color: var(--navy); border-bottom: 3px solid var(--orange); }
+
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.4s; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 12px; margin-bottom: 5px; font-weight: 700; color: var(--navy); text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #CBD5E0; border-radius: 8px; box-sizing: border-box; }
+        
+        .main-btn { width: 100%; background: var(--navy); color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .main-btn:hover { background: var(--orange); transform: translateY(-2px); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <a href="login.html" class="logo" style="text-decoration:none;">ICT<span>EXPERT.ai</span></a>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(event, 'signin')">Sign Up</div>
+        <div class="tab" onclick="switchTab(event, 'login')">Log In</div>
+        <div class="tab" onclick="switchTab(event, 'teacher')">Teacher</div>
+    </div>
+
+    <div id="signin" class="form-section active">
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" id="regName" placeholder="Create your account name">
+        </div>
+        <div class="input-group">
+            <label>Choose Batch</label>
+            <select id="regBatch">
+                <option value="2026">2026 Batch</option>
+                <option value="2027">2027 Batch</option>
+                <option value="2028">2028 Batch</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Create Password</label>
+            <input type="password" id="regPass" placeholder="••••••••">
+        </div>
+        <button class="main-btn" onclick="handleAuth('signup')">Create Account</button>
+    </div>
+
+    <div id="login" class="form-section">
+        <div class="input-group">
+            <label>Name / Email</label>
+            <input type="text" id="logName" placeholder="Your account name">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="logPass" placeholder="••••••••">
+        </div>
+        <button class="main-btn" onclick="handleAuth('login')">Log In</button>
+    </div>
+
+    <div id="teacher" class="form-section">
+        <div class="input-group">
+            <label>Teacher Email</label>
+            <input type="email" id="tEmail" placeholder="admin@ictexpert.ai">
+        </div>
+        <div class="input-group">
+            <label>Admin Code</label>
+            <input type="password" id="tPass" placeholder="••••••••">
+        </div>
+        <button class="main-btn" style="background:var(--orange)" onclick="handleAuth('teacher')">Admin Login</button>
+    </div>
+</div>
+
+<script>
+    // Auto-redirect if already logged in
+    (function() {
+        const name = localStorage.getItem('ict_user_name');
+        const role = localStorage.getItem('ict_user_role');
+        if (name) {
+            if (role === 'teacher') {
+                window.location.href = 'teacher_dashboard.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+            return;
+        }
+    })();
+
+    function switchTab(evt, tabName) {
+        let sections = document.getElementsByClassName("form-section");
+        for (let s of sections) s.classList.remove("active");
+        
+        let tabs = document.getElementsByClassName("tab");
+        for (let t of tabs) t.classList.remove("active");
+
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    function handleAuth(type) {
+        if (type === 'signup' || type === 'login') {
+            const name = (type === 'signup') ? document.getElementById('regName').value : document.getElementById('logName').value;
+            const batch = (type === 'signup') ? document.getElementById('regBatch').value : "2026"; // Default or fetched
+
+            if (!name) return alert("Please fill in the name field.");
+
+            // Store details for index.html
+            localStorage.setItem('ict_user_name', name);
+            localStorage.setItem('ict_user_batch', batch);
+            localStorage.setItem('ict_user_role', 'student');
+            
+            // Clear banner flag to show welcome animation
+            sessionStorage.removeItem('bannerShown');
+            
+            alert(type === 'signup' ? "Welcome! Account Created." : "Welcome Back!");
+            window.location.href = "index.html";
+
+        } else if (type === 'teacher') {
+            const email = document.getElementById('tEmail').value;
+            const pass = document.getElementById('tPass').value;
+
+            if (email === "admin" && pass === "1234") {
+                localStorage.setItem('ict_user_name', "Admin Teacher");
+                localStorage.setItem('ict_user_role', 'teacher');
+                window.location.href = "teacher_dashboard.html";
+            } else {
+                alert("Invalid Admin Credentials!");
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

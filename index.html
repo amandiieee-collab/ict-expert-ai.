@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | ICTEXPERT.ai</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --navy: #0A192F; --royal: #172A45; --orange: #D97706; --blue-btn: #1E3A8A; --bg: #F3F4F6; --text: #1F2937; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* Welcome Animation Banner */
+        #welcomeBanner {
+            background: linear-gradient(135deg, var(--navy), var(--royal));
+            color: white;
+            padding: 40px 5%;
+            text-align: center;
+            display: none; 
+            animation: slideDown 0.8s ease-out;
+            border-bottom: 4px solid var(--orange);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Navigation */
+        nav { background: var(--navy); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; color: white; border-bottom: 3px solid var(--orange); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 22px; font-weight: bold; text-decoration: none; color: white; }
+        .logo span { color: var(--orange); }
+        .user-status { font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .user-status:hover { color: var(--orange); }
+
+        .container { padding: 30px 5%; max-width: 1400px; margin: auto; }
+
+        /* Batch Cards Grid */
+        .batch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 35px; }
+        .batch-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid var(--orange); transition: 0.3s; }
+        .batch-card:hover { transform: translateY(-5px); }
+        
+        .timer-box { background: #F8FAFB; padding: 12px; border-radius: 6px; text-align: center; font-family: 'Courier New', monospace; font-size: 14px; margin-bottom: 15px; color: #64748B; border: 1px dashed #CBD5E0; }
+
+        /* Resource Download Styles */
+        .resource-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; font-weight: 500; }
+        .pdf-label { background: var(--blue-btn); color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none; transition: 0.2s; cursor: pointer; }
+        .pdf-label:hover { background: #111827; }
+
+        .eval-btn { display: block; width: 100%; background: var(--orange); color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+
+        /* Stats & Charts */
+        .stats-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; }
+        .stat-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .score-indicator { background: #10B981; color: white; padding: 6px 15px; border-radius: 6px; font-weight: bold; float: right; }
+
+        /* Toast Notification */
+        #downloadToast {
+            visibility: hidden; min-width: 250px; background-color: #10B981; color: #fff;
+            text-align: center; border-radius: 8px; padding: 16px; position: fixed;
+            z-index: 2000; right: 30px; bottom: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        #downloadToast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        @media (max-width: 900px) { .batch-grid, .stats-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div id="welcomeBanner">
+    <h1 style="margin:0;">Welcome, <span id="bannerName">Student</span>!</h1>
+    <p style="opacity: 0.9;">Ready to master ICT for your A/L Exam?</p>
+</div>
+
+<nav>
+    <a href="index.html" class="logo">ICT<span>EXPERT.ai</span></a>
+    <div class="user-status" onclick="handleLogout()">
+        <i class="fas fa-user-circle"></i> <span id="userNameDisplay">Loading...</span> | <span style="color:var(--orange)">Logout</span>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="batch-grid">
+        <div class="batch-card" id="card2026">
+            <div style="font-size:19px; font-weight:bold; margin-bottom:12px;">2026 A/L Exam</div>
+            <div class="timer-box" id="timer2026">Calculating...</div>
+            <div class="resource-row"><span>Model papers</span> <a href="docs/2026_Model.pdf" download class="pdf-label" onclick="showToast()">PDF</a></div>
+            <div class="resource-row"><span>Past papers</span> <a href="docs/2026_Past.pdf" download class="pdf-label" onclick="showToast()">PDF</a></div>
+            <a href="portal.html" class="eval-btn" onclick="saveContext('2026')">Start AI Evaluation</a>
+        </div>
+
+        <div class="batch-card" id="card2027">
+            <div style="font-size:19px; font-weight:bold; margin-bottom:12px;">2027 A/L Exam</div>
+            <div class="timer-box" id="timer2027">Calculating...</div>
+            <div class="resource-row"><span>Model papers</span> <a href="docs/2027_Model.pdf" download class="pdf-label" onclick="showToast()">PDF</a></div>
+            <div class="resource-row"><span>Past papers</span> <a href="docs/2027_Past.pdf" download class="pdf-label" onclick="showToast()">PDF</a></div>
+            <a href="portal.html" class="eval-btn" onclick="saveContext('2027')">Start AI Evaluation</a>
+        </div>
+
+        <div class="batch-card" id="card2028">
+            <div style="font-size:19px; font-weight:bold; margin-bottom:12px;">2028 A/L Exam</div>
+            <div class="timer-box" id="timer2028">Calculating...</div>
+            <div class="resource-row"><span>Model papers</span> <a href="docs/2028_Model.pdf" download class="pdf-label" onclick="showToast()">PDF</a></div>
+            <div class="resource-row"><span>Past papers</span> <a href="docs/2028_Past.pdf" download class="pdf-label" onclick="showToast()">PDF</a></div>
+            <a href="portal.html" class="eval-btn" onclick="saveContext('2028')">Start AI Evaluation</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3 style="margin:0;"><i class="fas fa-history" style="color:var(--orange)"></i> Recent AI Activity</h3>
+            <div style="border-top: 1px solid #E5E7EB; margin-top:15px; padding-top:15px;">
+                <span class="score-indicator" id="scoreDisplay">0% Score</span>
+                <p><strong>Last Session:</strong> <span id="lastSessionName" style="color:#6B7280">No data found</span></p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <h3 style="margin:0;">Syllabus Progress</h3>
+            <canvas id="syllabusChart" height="150"></canvas>
+        </div>
+    </div>
+</div>
+
+<div id="downloadToast"><i class="fas fa-check-circle"></i> Download Started Successfully!</div>
+
+<script>
+    window.onload = function() {
+        const name = localStorage.getItem('ict_user_name');
+        const batch = localStorage.getItem('ict_user_batch');
+        const score = localStorage.getItem('ict_latest_score') || "0";
+
+        // 1. Guard Clause: If not logged in, go back to login
+        if (!name) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        // 2. Show Welcome Banner (Only once per session)
+        if (!sessionStorage.getItem('bannerShown')) {
+            const banner = document.getElementById('welcomeBanner');
+            banner.style.display = 'block';
+            document.getElementById('bannerName').innerText = name;
+            sessionStorage.setItem('bannerShown', 'true');
+        }
+
+        // 3. Update UI
+        document.getElementById('userNameDisplay').innerText = name + " (" + batch + ")";
+        document.getElementById('scoreDisplay').innerText = score + "% Score";
+
+        startTimers();
+        renderChart();
+    };
+
+    function saveContext(year) {
+        localStorage.setItem('ict_user_batch', year);
+    }
+
+    function handleLogout() {
+        if(confirm("Are you sure you want to log out?")) {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+    }
+
+    function showToast() {
+        const toast = document.getElementById("downloadToast");
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function startTimers() {
+        const exams = { "2026": "Aug 1, 2026", "2027": "Aug 1, 2027", "2028": "Aug 1, 2028" };
+        setInterval(() => {
+            const now = new Date().getTime();
+            for (let year in exams) {
+                let diff = new Date(exams[year]).getTime() - now;
+                let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                document.getElementById(`timer${year}`).innerText = days > 0 ? days + " days to go" : "Exam Active";
+            }
+        }, 1000);
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById('syllabusChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    data: [10, 25, 40, 55],
+                    borderColor: '#D97706',
+                    backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+    }
+</script>
+</body>
+</html>
